@@ -1,0 +1,2949 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="BITS Pilani Digital — Advanced Academic Grading & Marks Evaluation Console. Official light-theme institutional interface for course grading, analytics, and grade distribution.">
+<title>BITS Pilani Digital — Academic Grading Console</title>
+<link rel="icon" type="image/webp" href="BITS_Pilani-Logo.svg.webp">
+
+<!-- External Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================================
+   BITS PILANI DIGITAL — OFFICIAL LIGHT THEME DESIGN SYSTEM
+   Brand Palette:
+     BITS Heritage Navy : #1E1E6E / #2B2B88 / #14144A
+     BITS Technical Sky  : #0284C7 / #0EA5E9 / #38BDF8
+     BITS Royal Gold     : #B45309 / #D97706 / #F59E0B / #D4A84C
+     BITS Crimson Red    : #DC2626 / #CF2027
+     Academic Emerald    : #059669 / #10B981
+   ========================================================== */
+:root {
+  /* Core Brand Tokens */
+  --bits-navy: #1E1E6E;
+  --bits-navy-deep: #121248;
+  --bits-navy-light: #2B2B88;
+  --bits-navy-tint: #EEF0FB;
+  --bits-navy-glow: rgba(30, 30, 110, 0.12);
+
+  --bits-sky: #0284C7;
+  --bits-sky-vibrant: #0EA5E9;
+  --bits-sky-soft: #E0F2FE;
+  --bits-sky-glow: rgba(2, 132, 199, 0.18);
+
+  --bits-gold: #B45309;
+  --bits-gold-warm: #D97706;
+  --bits-gold-accent: #F59E0B;
+  --bits-gold-soft: #FEF3C7;
+  --bits-gold-glow: rgba(217, 119, 6, 0.2);
+
+  --bits-red: #DC2626;
+  --bits-red-soft: #FEE2E2;
+  --bits-red-border: rgba(220, 38, 38, 0.25);
+
+  --bits-emerald: #059669;
+  --bits-emerald-soft: #ECFDF5;
+  --bits-emerald-glow: rgba(5, 150, 105, 0.18);
+
+  /* Light Theme Surfaces */
+  --bg-page: #F8FAFC;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-sidebar: #FFFFFF;
+  --bg-input: #F8FAFC;
+  --bg-input-focus: #FFFFFF;
+  --bg-subtle: #F1F5F9;
+  --bg-muted: #E2E8F0;
+
+  /* Typography Colors */
+  --text-headline: #0F172A;
+  --text-body: #334155;
+  --text-secondary: #64748B;
+  --text-muted: #94A3B8;
+  --text-on-dark: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-card: #E2E8F0;
+  --border-card-hover: #CBD5E1;
+  --border-light: #EDF2F7;
+  --border-brand: rgba(30, 30, 110, 0.14);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px 0 rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 2px 4px 0 rgba(15, 23, 42, 0.05);
+  --shadow-card: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 6px 18px -3px rgba(30, 30, 110, 0.05);
+  --shadow-card-hover: 0 8px 24px -4px rgba(30, 30, 110, 0.09), 0 3px 8px -2px rgba(15, 23, 42, 0.04);
+  --shadow-pop: 0 20px 35px -8px rgba(30, 30, 110, 0.14), 0 6px 14px -3px rgba(15, 23, 42, 0.06);
+
+  /* Fonts */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--text-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+  background-image:
+    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.05) 0px, transparent 40%),
+    radial-gradient(at 100% 0%, rgba(30, 30, 110, 0.04) 0px, transparent 45%),
+    radial-gradient(at 50% 100%, rgba(217, 119, 6, 0.03) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Subtle Canvas for Light Constellation */
+#particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+#confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  pointer-events: none;
+}
+
+/* Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* Shell Layout */
+.shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* ==========================================================
+   SIDEBAR (Clean, Ivory-White Institutional Navigation)
+   ========================================================== */
+.sidebar {
+  background: var(--bg-sidebar);
+  border-right: 1px solid var(--border-card);
+  padding: 28px 22px;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  box-shadow: 2px 0 16px -4px rgba(30, 30, 110, 0.03);
+  overflow-y: auto;
+}
+
+/* University Emblem & Brand */
+.sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sb-crest {
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  box-shadow: 0 2px 10px rgba(30, 30, 110, 0.08), 0 0 0 1px rgba(30, 30, 110, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+  padding: 2px;
+  transition: all 0.25s ease;
+}
+
+.sb-crest:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(30, 30, 110, 0.16), 0 0 0 1.5px var(--bits-gold-warm);
+}
+
+.sb-crest img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.sb-info h1 {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: var(--bits-navy);
+  line-height: 1.25;
+}
+
+.sb-info .sub {
+  font-size: 10px;
+  color: var(--bits-gold-warm);
+  font-family: var(--font-mono);
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-top: 3px;
+}
+
+.sb-info .inst-tag {
+  display: inline-block;
+  font-size: 9px;
+  background: var(--bits-navy-tint);
+  color: var(--bits-navy);
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-top: 4px;
+}
+
+/* Stepper Workflow */
+.steps-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-bottom: 14px;
+}
+
+.steps {
+  margin-bottom: auto;
+  position: relative;
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  margin-bottom: 6px;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.step.active {
+  background: var(--bits-navy-tint);
+}
+
+.step.done {
+  background: #FAFBFD;
+}
+
+.step-num {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 700;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-card);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.step.active .step-num {
+  background: var(--bits-navy);
+  color: #FFFFFF;
+  border-color: var(--bits-navy);
+  box-shadow: 0 2px 8px rgba(30, 30, 110, 0.3);
+}
+
+.step.done .step-num {
+  background: var(--bits-emerald-soft);
+  color: var(--bits-emerald);
+  border-color: rgba(5, 150, 105, 0.3);
+}
+
+.step-txt {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.step.active .step-txt {
+  color: var(--bits-navy);
+  font-weight: 700;
+}
+
+.step.done .step-txt {
+  color: var(--bits-emerald);
+}
+
+.step-desc {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-top: 2px;
+}
+
+.step.active .step-desc {
+  color: var(--bits-navy-light);
+}
+
+/* Stepper Connector */
+.step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 42px;
+  width: 2px;
+  height: 16px;
+  background: var(--border-card);
+}
+
+.step.done:not(:last-child)::after {
+  background: rgba(5, 150, 105, 0.3);
+}
+
+/* Session Timer Card */
+.sb-timer-box {
+  background: linear-gradient(135deg, #FFFFFF, var(--bits-navy-tint));
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.sb-timer-lbl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-bottom: 6px;
+}
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--bits-emerald-soft);
+  color: var(--bits-emerald);
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bits-emerald);
+  animation: pulseDot 1.6s ease-in-out infinite;
+}
+
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.8); }
+}
+
+.sb-timer-val {
+  font-family: var(--font-mono);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--bits-navy);
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* University Seal & Motto */
+.sb-motto {
+  text-align: center;
+  padding-top: 18px;
+  border-top: 1px solid var(--border-light);
+  font-size: 11px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.sb-motto .sanskrit {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--bits-navy);
+  display: block;
+  margin-bottom: 3px;
+  letter-spacing: 0.5px;
+}
+
+.sb-motto .motto-sub {
+  font-size: 10px;
+  color: var(--bits-gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+}
+
+/* ==========================================================
+   MAIN CONTENT AREA
+   ========================================================== */
+.main {
+  padding: 32px 40px;
+  overflow-y: auto;
+  max-width: 1440px;
+}
+
+/* Header Banner */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-card);
+  gap: 20px;
+}
+
+.page-title h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--text-headline);
+  letter-spacing: -0.4px;
+}
+
+.page-title p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.header-badges {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.inst-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  box-shadow: var(--shadow-xs);
+}
+
+.inst-pill b {
+  color: var(--bits-navy);
+}
+
+/* Documentation Download Badges & Buttons */
+.btn-buglog {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 14px;
+  background: linear-gradient(135deg, var(--bits-navy) 0%, var(--bits-navy-light) 100%);
+  color: #FFFFFF !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(30, 30, 110, 0.2);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.btn-buglog:hover {
+  background: linear-gradient(135deg, var(--bits-navy-light) 0%, var(--bits-sky) 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+  color: #FFFFFF !important;
+}
+
+.btn-buglog:active {
+  transform: translateY(0);
+}
+
+.btn-buglog-alt {
+  background: #FFFFFF;
+  color: var(--bits-navy) !important;
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-buglog-alt:hover {
+  background: var(--bits-navy-tint);
+  border-color: var(--bits-sky);
+  color: var(--bits-sky) !important;
+}
+
+.sb-doc-box {
+  background: var(--bits-navy-tint);
+  border: 1px solid var(--border-brand);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 14px 0 6px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sb-doc-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--bits-navy);
+  font-family: var(--font-mono);
+}
+
+.sb-bug-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--bits-navy);
+  font-family: var(--font-sans);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.sb-bug-btn:hover {
+  background: var(--bits-navy);
+  border-color: var(--bits-navy);
+  color: #FFFFFF !important;
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(30, 30, 110, 0.2);
+}
+
+.sb-bug-btn-alt {
+  background: transparent;
+  border-color: var(--border-brand);
+  color: var(--text-secondary);
+}
+
+.sb-bug-btn-alt:hover {
+  background: #FFFFFF;
+  border-color: var(--bits-sky);
+  color: var(--bits-sky) !important;
+}
+
+/* ==========================================================
+   CONTROL RIBBON (Inputs, Upload, Course Select)
+   ========================================================== */
+.ctrl-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.3fr 1.1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: end;
+}
+
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ctrl-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.ctrl-in {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: 10px;
+  color: var(--text-headline);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-xs);
+}
+
+.ctrl-in:focus {
+  border-color: var(--bits-sky);
+  background: #FFFFFF;
+  box-shadow: 0 0 0 3px var(--bits-sky-glow);
+}
+
+.ctrl-in::placeholder {
+  color: var(--text-muted);
+}
+
+select.ctrl-in {
+  appearance: none;
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%2364748B' viewBox='0 0 16 16'%3E%3Cpath d='M8 12L2 5h12z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+}
+
+/* Drag & Drop Upload Zone */
+.dz {
+  position: relative;
+  padding: 10px 14px;
+  border: 1.5px dashed #CBD5E1;
+  border-radius: 10px;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: var(--shadow-xs);
+  min-height: 48px;
+}
+
+.dz:hover, .dz.drag {
+  border-color: var(--bits-sky);
+  background: var(--bits-sky-soft);
+}
+
+.dz.ok {
+  border-color: var(--bits-emerald);
+  background: var(--bits-emerald-soft);
+}
+
+.dz-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: var(--bits-navy-tint);
+  color: var(--bits-navy);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.dz:hover .dz-ico {
+  transform: scale(1.08);
+}
+
+.dz.ok .dz-ico {
+  background: var(--bits-emerald);
+  color: #FFFFFF;
+}
+
+.dz-txt {
+  font-size: 13px;
+  color: var(--text-body);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dz-txt b {
+  color: var(--bits-navy);
+  font-weight: 700;
+}
+
+.dz.ok .dz-txt b {
+  color: var(--bits-emerald);
+}
+
+.dz input[type="file"] {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+
+
+/* Guide Accordion */
+.guide {
+  margin-bottom: 24px;
+}
+
+.guide details {
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.guide summary {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  letter-spacing: 0.4px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide summary:hover {
+  color: var(--bits-navy);
+}
+
+.guide .bd {
+  padding: 4px 18px 14px;
+  font-size: 12px;
+  color: var(--text-body);
+  line-height: 1.8;
+  border-top: 1px solid var(--border-light);
+  background: #FAFBFD;
+}
+
+.guide .bd b {
+  color: var(--bits-navy);
+}
+
+/* Welcome Alert */
+.wlc {
+  display: none;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #FFFFFF, var(--bits-navy-tint));
+  border: 1.5px solid var(--border-brand);
+  border-radius: 12px;
+  margin-bottom: 24px;
+  font-size: 14px;
+  color: var(--text-body);
+  box-shadow: var(--shadow-card);
+  animation: fadeUp 0.4s ease;
+}
+
+.wlc.on {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wlc strong {
+  color: var(--bits-navy);
+}
+
+.wlc .crs {
+  color: var(--bits-sky);
+  font-weight: 700;
+}
+
+/* ==========================================================
+   DASHBOARD DUAL-PANE (Analytics & Grade Config)
+   ========================================================== */
+.dash {
+  display: none;
+  gap: 24px;
+  animation: fadeUp 0.5s ease;
+}
+
+.dash.on {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+}
+
+/* Card Styling */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  box-shadow: var(--shadow-card);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  border-color: var(--border-card-hover);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.card-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-ico {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.card-ico.ana {
+  background: var(--bits-navy-tint);
+  color: var(--bits-navy);
+}
+
+.card-ico.cfg {
+  background: var(--bits-gold-soft);
+  color: var(--bits-gold);
+}
+
+.card-ico.stu {
+  background: var(--bits-sky-soft);
+  color: var(--bits-sky);
+}
+
+.card-lbl {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-headline);
+  font-family: var(--font-mono);
+}
+
+.card-subtag {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* ==========================================================
+   METRIC TILES (8 Academic KPIs with Animated Numbers)
+   ========================================================== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.st {
+  background: #FAFBFD;
+  border: 1px solid var(--border-card);
+  border-radius: 10px;
+  padding: 12px 10px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.25s ease;
+}
+
+.st:hover {
+  transform: translateY(-2px);
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Top accent line on stat cards */
+.st::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 3px 3px 0 0;
+}
+
+.st.c-navy::before { background: var(--bits-navy); }
+.st.c-sky::before { background: var(--bits-sky); }
+.st.c-gold::before { background: var(--bits-gold-warm); }
+.st.c-emerald::before { background: var(--bits-emerald); }
+.st.c-red::before { background: var(--bits-red); }
+.st.c-indigo::before { background: #6366F1; }
+
+.st-l {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-bottom: 4px;
+}
+
+.st-v {
+  font-size: 22px;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--text-headline);
+  line-height: 1.2;
+}
+
+.st.c-navy .st-v { color: var(--bits-navy); }
+.st.c-sky .st-v { color: var(--bits-sky); }
+.st.c-gold .st-v { color: var(--bits-gold); }
+.st.c-emerald .st-v { color: var(--bits-emerald); }
+.st.c-red .st-v { color: var(--bits-red); }
+.st.c-indigo .st-v { color: #4F46E5; }
+
+.st-sub {
+  font-size: 9px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+/* Segmented Chart Tabs */
+.ct {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--bg-subtle);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  width: fit-content;
+  border: 1px solid var(--border-card);
+}
+
+.ct button {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ct button:hover {
+  color: var(--text-headline);
+}
+
+.ct button.on {
+  background: #FFFFFF;
+  color: var(--bits-navy);
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+}
+
+.cw {
+  position: relative;
+  width: 100%;
+  height: 250px;
+  margin-bottom: 18px;
+}
+
+.cw canvas {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Grade Distribution Interactive Pills */
+.pills-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+
+.pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: 0.4px;
+  border: 1px solid var(--border-card);
+  background: #FAFBFD;
+  color: var(--text-body);
+  transition: all 0.2s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--bits-navy);
+  background: #FFFFFF;
+  box-shadow: var(--shadow-sm);
+}
+
+.pill.active-filter {
+  background: var(--bits-navy);
+  color: #FFFFFF;
+  border-color: var(--bits-navy);
+}
+
+.pill.pop {
+  animation: pillPop 0.4s ease;
+}
+
+@keyframes pillPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); background: var(--bits-navy-tint); border-color: var(--bits-navy); }
+  100% { transform: scale(1); }
+}
+
+/* ==========================================================
+   GRADE RANGES ENGINE (Right Pane)
+   ========================================================== */
+.gg {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.gc {
+  background: #FAFBFD;
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  padding: 12px 10px;
+  position: relative;
+  transition: all 0.25s ease;
+  overflow: hidden;
+}
+
+.gc:hover {
+  background: #FFFFFF;
+  border-color: #CBD5E1;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.gc.glow {
+  border-color: var(--bits-sky);
+  box-shadow: 0 0 0 3px var(--bits-sky-glow);
+}
+
+/* Colored Top Strip by Grade Band */
+.gc::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.gc[data-g="A"]::before, .gc[data-g="A-"]::before { background: var(--bits-emerald); }
+.gc[data-g="B"]::before, .gc[data-g="B-"]::before { background: var(--bits-sky); }
+.gc[data-g="C"]::before, .gc[data-g="C-"]::before { background: var(--bits-gold-warm); }
+.gc[data-g="D"]::before { background: #EA580C; }
+.gc[data-g="E"]::before { background: var(--bits-red); }
+
+.gc-l {
+  font-size: 18px;
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+}
+
+.gc-l[data-g="A"], .gc-l[data-g="A-"] { color: var(--bits-emerald); }
+.gc-l[data-g="B"], .gc-l[data-g="B-"] { color: var(--bits-sky); }
+.gc-l[data-g="C"], .gc-l[data-g="C-"] { color: var(--bits-gold); }
+.gc-l[data-g="D"] { color: #EA580C; }
+.gc-l[data-g="E"] { color: var(--bits-red); }
+
+/* SVG Ring */
+.gc-ring {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.gc-ring svg {
+  width: 44px;
+  height: 44px;
+  transform: rotate(-90deg);
+}
+
+.gc-ring-bg {
+  fill: none;
+  stroke: #E2E8F0;
+  stroke-width: 4;
+}
+
+.gc-ring-fg {
+  fill: none;
+  stroke-width: 4;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.gc-cnt {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  margin-bottom: 8px;
+}
+
+.gc-r {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 5px;
+}
+
+.gc-r label {
+  width: 26px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+}
+
+.gc-r select {
+  flex: 1;
+  padding: 5px 6px;
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  border-radius: 6px;
+  color: var(--text-headline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  outline: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.gc-r select:focus {
+  border-color: var(--bits-sky);
+  box-shadow: 0 0 0 2px var(--bits-sky-glow);
+}
+
+/* Range Error & Success Banners */
+.msg-e {
+  display: none;
+  padding: 12px 16px;
+  background: var(--bits-red-soft);
+  border: 1.5px solid var(--bits-red-border);
+  border-radius: 10px;
+  color: var(--bits-red);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  margin-bottom: 16px;
+  animation: fadeUp 0.3s ease;
+}
+
+.msg-e.on {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.msg-s {
+  display: none;
+  padding: 14px 18px;
+  background: var(--bits-emerald-soft);
+  border: 1.5px solid rgba(5, 150, 105, 0.25);
+  border-radius: 10px;
+  color: #065F46;
+  font-size: 13px;
+  font-weight: 600;
+  margin-top: 16px;
+  animation: fadeUp 0.3s ease;
+}
+
+.msg-s.on {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Action Button Ribbon */
+.bar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  outline: none;
+  letter-spacing: 0.2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-p {
+  background: linear-gradient(135deg, var(--bits-navy-deep), var(--bits-navy));
+  color: #FFFFFF;
+  border: 1px solid var(--bits-navy);
+  box-shadow: 0 4px 14px rgba(30, 30, 110, 0.25);
+  flex: 1;
+}
+
+.btn-p:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(30, 30, 110, 0.35);
+}
+
+.btn-p:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.btn-g {
+  background: #FFFFFF;
+  color: var(--text-body);
+  border: 1.5px solid var(--border-card);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-g:hover {
+  background: #FAFBFD;
+  border-color: #CBD5E1;
+  color: var(--text-headline);
+}
+
+/* ==========================================================
+   STUDENT RECORDS TABLE (Full Width)
+   ========================================================== */
+.tbl-card {
+  grid-column: 1 / -1;
+  margin-top: 24px;
+}
+
+.tc {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.sw {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+}
+
+.sw::before {
+  content: '⌕';
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+.sb {
+  width: 100%;
+  padding: 10px 16px 10px 40px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-card);
+  border-radius: 10px;
+  color: var(--text-headline);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sb:focus {
+  border-color: var(--bits-sky);
+  box-shadow: 0 0 0 3px var(--bits-sky-glow);
+}
+
+.tw {
+  border: 1px solid var(--border-card);
+  border-radius: 12px;
+  overflow: hidden;
+  max-height: 420px;
+  overflow-y: auto;
+  background: #FFFFFF;
+}
+
+table.dt {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+table.dt thead {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #FAFBFD;
+}
+
+table.dt th {
+  color: var(--bits-navy);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: var(--font-mono);
+  padding: 14px 18px;
+  text-align: left;
+  border-bottom: 1.5px solid var(--border-card);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.2s ease;
+}
+
+table.dt th:hover {
+  background: var(--bits-navy-tint);
+}
+
+table.dt td {
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--border-light);
+  color: var(--text-body);
+  transition: all 0.15s ease;
+}
+
+table.dt tr:hover td {
+  background: #F8FAFC;
+}
+
+table.dt td:nth-child(2) {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--bits-navy);
+}
+
+table.dt td:nth-child(3) {
+  font-family: var(--font-mono);
+  font-weight: 700;
+}
+
+/* Student Marks Bar in Table */
+.mark-meter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mark-val {
+  min-width: 28px;
+}
+
+.mark-bar {
+  flex: 1;
+  max-width: 80px;
+  height: 6px;
+  background: var(--bg-muted);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mark-fill {
+  height: 100%;
+  background: var(--bits-sky);
+  border-radius: 999px;
+}
+
+/* Grade Badges */
+.gb {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 4px 12px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+}
+
+.gb.ga { background: var(--bits-emerald-soft); color: var(--bits-emerald); border: 1px solid rgba(5, 150, 105, 0.2); }
+.gb.gbb { background: var(--bits-sky-soft); color: var(--bits-sky); border: 1px solid rgba(2, 132, 199, 0.2); }
+.gb.gcc { background: var(--bits-gold-soft); color: var(--bits-gold); border: 1px solid rgba(217, 119, 6, 0.2); }
+.gb.gd { background: #FFF7ED; color: #EA580C; border: 1px solid rgba(234, 88, 12, 0.2); }
+.gb.ge { background: var(--bits-red-soft); color: var(--bits-red); border: 1px solid rgba(220, 38, 38, 0.2); }
+
+.tinf {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Toast Notifications */
+.toasts {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.toast {
+  padding: 12px 20px 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  color: var(--text-headline);
+  background: #FFFFFF;
+  border: 1px solid var(--border-card);
+  box-shadow: var(--shadow-pop);
+  animation: tIn 0.35s cubic-bezier(0.4, 0, 0.2, 1), tOut 0.4s ease 3.4s forwards;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.toast .tico {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.toast.tok {
+  border-left: 4px solid var(--bits-emerald);
+}
+.toast.tok .tico {
+  color: var(--bits-emerald);
+}
+
+.toast.terr {
+  border-left: 4px solid var(--bits-red);
+}
+.toast.terr .tico {
+  color: var(--bits-red);
+}
+
+.toast.tinf2 {
+  border-left: 4px solid var(--bits-sky);
+}
+.toast.tinf2 .tico {
+  color: var(--bits-sky);
+}
+
+@keyframes tIn {
+  from { opacity: 0; transform: translateX(50px) scale(0.95); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes tOut {
+  from { opacity: 1; }
+  to { opacity: 0; transform: translateX(50px); pointer-events: none; }
+}
+
+/* Empty State */
+.empty {
+  text-align: center;
+  padding: 90px 20px;
+  background: #FFFFFF;
+  border: 1.5px dashed var(--border-card);
+  border-radius: 16px;
+  box-shadow: var(--shadow-xs);
+}
+
+.empty-orb {
+  width: 90px;
+  height: 90px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--bits-navy-tint), var(--bits-sky-soft));
+  border: 1px solid var(--border-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 38px;
+  animation: floatOrb 5s ease-in-out infinite;
+}
+
+@keyframes floatOrb {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.empty h3 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--bits-navy);
+  margin-bottom: 8px;
+}
+
+.empty p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  max-width: 440px;
+  margin: 0 auto 20px;
+  line-height: 1.7;
+}
+
+.empty p strong {
+  color: var(--bits-navy);
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive */
+@media (max-width: 1100px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+  }
+  .steps {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+  .step::after {
+    display: none;
+  }
+  .sb-motto {
+    display: none;
+  }
+  .dash.on {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main {
+    padding: 20px 16px;
+  }
+  .ctrl-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .gg {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- Constellation Particles & Confetti Canvas -->
+<canvas id="particles"></canvas>
+<canvas id="confetti"></canvas>
+<div class="toasts" id="toasts"></div>
+
+<div class="shell">
+
+<!-- ==========================================================
+     INSTITUTIONAL SIDEBAR
+     ========================================================== -->
+<aside class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-crest">
+      <img src="BITS_Pilani-Logo.svg.webp" alt="BITS Pilani Logo" width="58" height="58">
+    </div>
+    <div class="sb-info">
+      <h1>BITS Pilani<br>Digital</h1>
+      <div class="sub">Academic Portal</div>
+      <span class="inst-tag">Evaluation Console v2.0</span>
+    </div>
+  </div>
+
+  <div class="steps-title">Evaluation Workflow</div>
+  <div class="steps" id="steps">
+    <div class="step active" id="s1">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-txt">Ingest Marks</div>
+        <span class="step-desc">Upload Excel roster (.xlsx)</span>
+      </div>
+    </div>
+    <div class="step" id="s2">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-txt">Course Selection</div>
+        <span class="step-desc">Filter active cohort</span>
+      </div>
+    </div>
+    <div class="step" id="s3">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-txt">Grade Calibration</div>
+        <span class="step-desc">Configure boundaries</span>
+      </div>
+    </div>
+    <div class="step" id="s4">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-txt">Export Results</div>
+        <span class="step-desc">Download validated CSV</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-timer-box">
+    <div class="sb-timer-lbl">
+      <span>Session Elapsed</span>
+      <span class="live-badge"><span class="live-dot"></span>Live</span>
+    </div>
+    <div class="sb-timer-val">
+      <span>⏱</span>
+      <span id="timerText">00:00</span>
+    </div>
+  </div>
+
+  <div class="sb-doc-box">
+    <div class="sb-doc-title">Challenge Audit Log</div>
+    <a href="bug_fix_log.docx" download="bug_fix_log.docx" class="sb-bug-btn" id="sbDownloadDocx" title="Download Official Bug Fix & Audit Report (.docx)">
+      <span>📘</span> Download Doc (.docx)
+    </a>
+    <a href="bug_fix_log.md" download="bug_fix_log.md" class="sb-bug-btn sb-bug-btn-alt" id="sbDownloadMd" title="Download Markdown Bug Fix Log (.md)">
+      <span>📝</span> Markdown Log (.md)
+    </a>
+  </div>
+
+  <div class="sb-motto">
+    <span class="sanskrit">ज्ञानं परमं बलम्</span>
+    <span class="motto-sub">Knowledge Is Supreme Power</span>
+  </div>
+</aside>
+
+<!-- ==========================================================
+     MAIN EVALUATION CONSOLE
+     ========================================================== -->
+<main class="main">
+  <!-- Top Bar -->
+  <div class="page-header">
+    <div class="page-title">
+      <h2>Academic Assessment & Grading Console</h2>
+      <p>Configure grade boundaries, inspect distribution histograms, and generate verified grade sheets.</p>
+    </div>
+    <div class="header-badges">
+      <div class="inst-pill">🏛 Campus: <b>BITS Pilani Digital</b></div>
+      <div class="inst-pill">Status: <b style="color:var(--bits-emerald)">System Active</b></div>
+      <a href="bug_fix_log.docx" download="bug_fix_log.docx" class="btn-buglog" id="btnDownloadDocx" title="Download Official 11-Bug Audit Report in Microsoft Word (.docx) format">
+        <span>📘</span>
+        <span>Download Doc (.docx)</span>
+      </a>
+      <a href="bug_fix_log.md" download="bug_fix_log.md" class="btn-buglog btn-buglog-alt" id="btnDownloadMd" title="Download Bug Fix Log (.md)">
+        <span>📝</span>
+        <span>.md</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Primary Input Ribbon -->
+  <div class="ctrl-grid">
+    <div class="ctrl">
+      <span class="ctrl-lbl">Instructor In-Charge</span>
+      <input id="instructor" class="ctrl-in" placeholder="e.g. Dr. A. Sharma" autocomplete="off">
+    </div>
+
+    <div class="ctrl">
+      <span class="ctrl-lbl">Marks Sheet (.xlsx / .xls)</span>
+      <div class="dz" id="dz" title="Click or Drag Excel Marks Sheet Here">
+        <div class="dz-ico">📂</div>
+        <div class="dz-txt"><b>Upload</b> or drag file — <span id="fLbl">.xlsx / .xls</span></div>
+        <input type="file" id="file" accept=".xlsx,.xls">
+      </div>
+    </div>
+
+    <div class="ctrl">
+      <span class="ctrl-lbl">Course Subject</span>
+      <select id="course" class="ctrl-in">
+        <option value="">Select course after upload</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Information Accordion -->
+  <div class="guide">
+    <details>
+      <summary>📋 Input File Guidelines & Verification Protocol</summary>
+      <div class="bd">
+        <p>• The spreadsheet must contain columns: <b>BITS ID</b>, <b>Course</b>, and <b>Total Marks</b> (range 0 to 100).<br>
+        • Students assigned <b>NC</b> (Not Cleared) should not be uploaded in this console.<br>
+        • Grade ranges are verified in real time: Min ≤ Max per band, no gaps between adjacent bands, top bound must be 100, and lower bound must be 0.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Welcome / Session Banner -->
+  <div class="wlc" id="wlc"></div>
+
+  <!-- Dashboard Workspace -->
+  <div class="dash" id="dash">
+    <!-- Left Pane: Analytics & Visualizations -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title-group">
+          <div class="card-ico ana">📊</div>
+          <div>
+            <div class="card-lbl">Cohort Analytics</div>
+            <div class="card-subtag">Distribution statistics for selected course</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 8 Key Metrics -->
+      <div class="stats">
+        <div class="st c-navy">
+          <div class="st-l">Enrolled</div>
+          <div class="st-v" id="sN">–</div>
+          <div class="st-sub">Students</div>
+        </div>
+        <div class="st c-sky">
+          <div class="st-l">Mean Avg</div>
+          <div class="st-v" id="sA">–</div>
+          <div class="st-sub">Class Score</div>
+        </div>
+        <div class="st c-emerald">
+          <div class="st-l">Highest</div>
+          <div class="st-v" id="sH">–</div>
+          <div class="st-sub">Top Mark</div>
+        </div>
+        <div class="st c-red">
+          <div class="st-l">Lowest</div>
+          <div class="st-v" id="sL">–</div>
+          <div class="st-sub">Floor Mark</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="st c-indigo">
+          <div class="st-l">Median</div>
+          <div class="st-v" id="sM">–</div>
+          <div class="st-sub">50th %ile</div>
+        </div>
+        <div class="st c-navy">
+          <div class="st-l">Std Dev</div>
+          <div class="st-v" id="sD">–</div>
+          <div class="st-sub">Dispersion</div>
+        </div>
+        <div class="st c-emerald">
+          <div class="st-l">Pass Rate</div>
+          <div class="st-v" id="sP">–</div>
+          <div class="st-sub">≥ 40 Marks</div>
+        </div>
+        <div class="st c-gold">
+          <div class="st-l">Modal Grade</div>
+          <div class="st-v" id="sT">–</div>
+          <div class="st-sub">Most Frequent</div>
+        </div>
+      </div>
+
+      <!-- Segmented Tab Controls for Charts -->
+      <div class="ct">
+        <button class="on" data-c="hist">Score Histogram</button>
+        <button data-c="donut">Grade Distribution</button>
+        <button data-c="box">Quartile Box Plot</button>
+      </div>
+
+      <!-- Chart Canvas Wrapper -->
+      <div class="cw">
+        <canvas id="cv"></canvas>
+      </div>
+
+      <!-- Interactive Grade Pills -->
+      <div class="pills-title">Grade Share (Click any pill to filter records table):</div>
+      <div class="pills" id="pills"></div>
+    </div>
+
+    <!-- Right Pane: Grade Calibration Engine -->
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title-group">
+          <div class="card-ico cfg">⚙️</div>
+          <div>
+            <div class="card-lbl">Grade Range Calibration</div>
+            <div class="card-subtag">Adjust boundary thresholds per grade band</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="gg" id="gg"></div>
+
+      <!-- Validation Error Banner -->
+      <div class="msg-e" id="rErr">
+        <span style="font-size:16px">⚠</span>
+        <span id="rErrTxt">Boundary conflict detected</span>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="bar">
+        <button class="btn btn-g" id="resetR" title="Reset ranges to standard BITS defaults">
+          ↺ Reset Scale
+        </button>
+        <a href="bug_fix_log.docx" download="bug_fix_log.docx" class="btn btn-g" id="btnBarDocx" title="Download Bug Fix Audit Report (.docx)" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+          📘 Audit Log (.docx)
+        </a>
+        <button class="btn btn-p" id="dl" disabled title="Export validated grades as CSV">
+          ✦ Finalize & Export CSV
+        </button>
+      </div>
+
+      <!-- Success Callout -->
+      <div class="msg-s" id="ty">
+        <span style="font-size:18px">✓</span>
+        <span id="tyTxt">Grades successfully exported</span>
+      </div>
+    </div>
+
+    <!-- Bottom Full-Width: Student Records Table -->
+    <div class="card tbl-card">
+      <div class="card-hd">
+        <div class="card-title-group">
+          <div class="card-ico stu">👥</div>
+          <div>
+            <div class="card-lbl">Student Score Records</div>
+            <div class="card-subtag">Verified student roster with calculated letter grades</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tc">
+        <div class="sw">
+          <input class="sb" id="sSearch" placeholder="Search BITS ID or Grade…">
+        </div>
+        <button class="btn btn-g" id="sSort">↕ Sort: Marks ↓</button>
+        <button class="btn btn-g" id="btnClearFilter" style="display:none">✕ Clear Grade Filter</button>
+      </div>
+
+      <div class="tw">
+        <table class="dt">
+          <thead>
+            <tr>
+              <th style="width:60px">#</th>
+              <th id="th1">BITS Student ID ↕</th>
+              <th id="th2">Total Marks (100) ↕</th>
+              <th id="th3" style="width:140px">Awarded Grade ↕</th>
+            </tr>
+          </thead>
+          <tbody id="tb"></tbody>
+        </table>
+      </div>
+      <div class="tinf">
+        <span id="tInfo">0 students loaded</span>
+        <span>Relative Grading Scale Applied</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Initial Empty State -->
+  <div class="empty" id="empty">
+    <div class="empty-orb">🏛</div>
+    <h3>Grading Workspace Standby</h3>
+    <p>Please enter your instructor name, upload the student marks Excel sheet, and select your course cohort to initialize evaluation.</p>
+    <button class="btn btn-p" style="max-width:260px;margin:0 auto" onclick="document.getElementById('file').click()">
+      📂 Select Marks Sheet (.xlsx)
+    </button>
+  </div>
+</main>
+</div>
+
+<!-- ==========================================================
+     APPLICATION JAVASCRIPT LOGIC
+     - All 11 bugs resolved and verified
+     - Light Theme Chart.js & High-DPI Canvas Rendering
+     - Interactive Filtering, Live Metrics & Confetti
+     ========================================================== -->
+<script>
+/* ==========================================================
+   PARTICLE CONSTELLATION SYSTEM (Light Theme Calibrated)
+   ========================================================== */
+(function() {
+  const canvas = document.getElementById("particles");
+  const ctx = canvas.getContext("2d");
+  let W, H, particles = [];
+
+  function resize() {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener("resize", resize);
+
+  class Node {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = (Math.random() - 0.5) * 0.3;
+      this.r = Math.random() * 2 + 1;
+      this.isNavy = Math.random() > 0.5;
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+      if (this.x < 0 || this.x > W) this.vx *= -1;
+      if (this.y < 0 || this.y > H) this.vy *= -1;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.isNavy ? 'rgba(30, 30, 110, 0.15)' : 'rgba(2, 132, 199, 0.18)';
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < 50; i++) {
+    particles.push(new Node());
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 130) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(30, 30, 110, ${0.06 * (1 - dist / 130)})`;
+          ctx.lineWidth = 0.6;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(render);
+  }
+  render();
+})();
+
+/* ==========================================================
+   CONFETTI CELEBRATION ENGINE
+   ========================================================== */
+function fireConfetti() {
+  const canvas = document.getElementById("confetti");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ["#1E1E6E", "#0284C7", "#D97706", "#DC2626", "#059669", "#F59E0B"];
+  let pieces = [];
+
+  for (let i = 0; i < 140; i++) {
+    pieces.push({
+      x: window.innerWidth / 2 + (Math.random() - 0.5) * 300,
+      y: window.innerHeight / 2 - 50,
+      vx: (Math.random() - 0.5) * 18,
+      vy: -(Math.random() * 16 + 6),
+      w: Math.random() * 9 + 4,
+      h: Math.random() * 5 + 3,
+      rot: Math.random() * 360,
+      rv: (Math.random() - 0.5) * 14,
+      c: colors[Math.floor(Math.random() * colors.length)],
+      g: 0.28 + Math.random() * 0.15,
+      a: 1
+    });
+  }
+
+  let frames = 0;
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      if (p.a <= 0) return;
+      alive = true;
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += p.g;
+      p.rot += p.rv;
+      p.vx *= 0.99;
+      p.a -= 0.005;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot * Math.PI / 180);
+      ctx.globalAlpha = Math.max(0, p.a);
+      ctx.fillStyle = p.c;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+
+    frames++;
+    if (alive && frames < 320) {
+      requestAnimationFrame(animate);
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+  }
+  animate();
+}
+
+/* ==========================================================
+   ANIMATED NUMERIC COUNTERS (Robust Clamped Progress)
+   ========================================================== */
+function animateVal(el, target, suffix = "", dur = 400) {
+  if (!el) return;
+  if (el._raf) cancelAnimationFrame(el._raf);
+  const raw = parseFloat(el.textContent);
+  const start = (isNaN(raw) || raw < 0) ? 0 : raw;
+  const isInt = !suffix && Number.isInteger(target);
+  const t0 = performance.now();
+
+  function step(now) {
+    const elapsed = Math.max(0, (now || performance.now()) - t0);
+    const p = Math.min(elapsed / dur, 1);
+    const ease = 1 - Math.pow(1 - p, 3); // Cubic Ease Out
+    const v = start + (target - start) * ease;
+    el.textContent = (isInt ? Math.round(v) : v.toFixed(1)) + suffix;
+    if (p < 1) {
+      el._raf = requestAnimationFrame(step);
+    } else {
+      el._raf = null;
+      el.textContent = (isInt ? target : target.toFixed(1)) + suffix;
+    }
+  }
+  el._raf = requestAnimationFrame(step);
+}
+
+/* ==========================================================
+   APPLICATION STATE & CONSTANTS
+   ========================================================== */
+const GRADES = ["A", "A-", "B", "B-", "C", "C-", "D", "E"];
+const DEFAULTS = {
+  "A": [80, 100],
+  "A-": [70, 79],
+  "B": [60, 69],
+  "B-": [50, 59],
+  "C": [40, 49],
+  "C-": [30, 39],
+  "D": [20, 29],
+  "E": [0, 19]
+};
+
+const GCL = {
+  "A": "#059669",
+  "A-": "#10B981",
+  "B": "#0284C7",
+  "B-": "#38BDF8",
+  "C": "#D97706",
+  "C-": "#F59E0B",
+  "D": "#EA580C",
+  "E": "#DC2626"
+};
+
+let data = [];
+let prev = {};
+let fileCount = 0;
+let chart = null;
+let cType = "hist";
+let sortField = "marks";
+let sortDir = "desc";
+let searchQuery = "";
+let gradeFilter = "";
+
+/* Session Timer */
+const T0 = Date.now();
+let timerInterval = null;
+
+function startTimer() {
+  if (timerInterval) clearInterval(timerInterval);
+  tick();
+  timerInterval = setInterval(tick, 1000);
+}
+
+function tick() {
+  const elapsed = Date.now() - T0;
+  const m = Math.floor(elapsed / 60000);
+  const s = Math.floor((elapsed % 60000) / 1000);
+  document.getElementById("timerText").textContent =
+    String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+}
+document.addEventListener("DOMContentLoaded", startTimer);
+
+/* Toast Notification Utility */
+function toast(msg, type = "inf") {
+  const icons = { ok: "✓", err: "✕", inf: "ℹ" };
+  const cls = { ok: "tok", err: "terr", inf: "tinf2" };
+  const d = document.createElement("div");
+  d.className = `toast ${cls[type]}`;
+  d.innerHTML = `<span class="tico">${icons[type]}</span><span>${msg}</span>`;
+  document.getElementById("toasts").appendChild(d);
+  setTimeout(() => { if (d.parentNode) d.remove(); }, 3800);
+}
+
+/* Stepper Progress Visualizer */
+function setStep(n) {
+  [1, 2, 3, 4].forEach(i => {
+    const el = document.getElementById("s" + i);
+    el.classList.remove("active", "done");
+    if (i < n) el.classList.add("done");
+    if (i === n) el.classList.add("active");
+  });
+}
+
+/* ==========================================================
+   FILE INGESTION & DATA VALIDATION
+   - Accepts both .xlsx and .xls
+   - Filters out NaN and out-of-bound marks
+   - Clears and deduplicates courses
+   ========================================================== */
+const fileInput = document.getElementById("file");
+const courseSelect = document.getElementById("course");
+const instructorInput = document.getElementById("instructor");
+const dropZone = document.getElementById("dz");
+
+["dragenter", "dragover"].forEach(ev => {
+  dropZone.addEventListener(ev, e => {
+    e.preventDefault();
+    dropZone.classList.add("drag");
+  });
+});
+
+["dragleave", "drop"].forEach(ev => {
+  dropZone.addEventListener(ev, e => {
+    e.preventDefault();
+    dropZone.classList.remove("drag");
+  });
+});
+
+dropZone.addEventListener("drop", e => {
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+});
+
+fileInput.onchange = e => {
+  if (e.target.files[0]) handleFile(e.target.files[0]);
+};
+
+function handleFile(file) {
+  const ext = file.name.split('.').pop().toLowerCase();
+  if (ext !== 'xlsx' && ext !== 'xls') {
+    toast("Please select a valid .xlsx or .xls Excel file", "err");
+    return;
+  }
+
+  dropZone.classList.add("ok");
+  document.getElementById("fLbl").textContent = file.name;
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: "binary" });
+      const raw = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+
+      if (!raw || !raw.length) {
+        toast("Spreadsheet appears to be empty", "err");
+        return;
+      }
+
+      const reqCols = ["BITS ID", "Course", "Total Marks"];
+      const missing = reqCols.filter(col => !Object.keys(raw[0]).includes(col));
+      if (missing.length) {
+        toast(`Missing required columns: ${missing.join(", ")}`, "err");
+        return;
+      }
+
+      let badRows = 0;
+      data = raw.filter(row => {
+        const m = Number(row["Total Marks"]);
+        if (isNaN(m) || m < 0 || m > 100) {
+          badRows++;
+          return false;
+        }
+        row["Total Marks"] = Math.round(m);
+        return true;
+      });
+
+      if (badRows > 0) {
+        toast(`Filtered out ${badRows} invalid / NaN mark row(s)`, "err");
+      }
+
+      // Bug Fix: Clear dropdown before adding deduplicated courses
+      courseSelect.innerHTML = '<option value="">Select course</option>';
+      const courses = [...new Set(data.map(d => d.Course))].filter(Boolean);
+      courses.forEach(c => {
+        courseSelect.add(new Option(c, c));
+      });
+
+      toast(`Loaded ${data.length} valid records across ${courses.length} course(s)`, "ok");
+      setStep(2);
+    } catch (err) {
+      toast("Failed to parse Excel workbook", "err");
+      console.error(err);
+    }
+  };
+  reader.readAsBinaryString(file);
+}
+
+
+
+/* Course Selection Handler */
+courseSelect.onchange = () => {
+  const dash = document.getElementById("dash");
+  const empty = document.getElementById("empty");
+
+  if (!courseSelect.value) {
+    dash.classList.remove("on");
+    empty.style.display = "block";
+    return;
+  }
+
+  if (!instructorInput.value.trim()) {
+    toast("Please enter your instructor name first", "err");
+    courseSelect.value = "";
+    return;
+  }
+
+  const wlc = document.getElementById("wlc");
+  wlc.innerHTML = `
+    <div>Session Active for Instructor <strong>${instructorInput.value.trim()}</strong> — Grading Course <strong class="crs">${courseSelect.value}</strong></div>
+    <div style="font-size:12px;color:var(--text-secondary)">Standard Grading Scale In Effect</div>
+  `;
+  wlc.classList.add("on");
+
+  empty.style.display = "none";
+  dash.classList.add("on");
+  setStep(3);
+
+  buildGradeUI();
+  updateAll();
+};
+
+/* Cascade Max Boundary */
+function cascadeMaxFrom(idx) {
+  for (let i = idx + 1; i < GRADES.length; i++) {
+    const prevMin = +document.getElementById(GRADES[i - 1] + "min").value;
+    document.getElementById(GRADES[i] + "max").value = prevMin - 1;
+  }
+}
+
+/* ==========================================================
+   GRADE CALIBRATION INTERFACE
+   ========================================================== */
+function buildGradeUI() {
+  const container = document.getElementById("gg");
+  container.innerHTML = "";
+
+  GRADES.forEach((grade, idx) => {
+    const circ = 2 * Math.PI * 18;
+    const card = document.createElement("div");
+    card.className = "gc";
+    card.id = "card-" + grade;
+    card.setAttribute("data-g", grade);
+
+    card.innerHTML = `
+      <div class="gc-l" data-g="${grade}">${grade}</div>
+      <div class="gc-ring">
+        <svg viewBox="0 0 44 44">
+          <circle class="gc-ring-bg" cx="22" cy="22" r="18"/>
+          <circle class="gc-ring-fg" cx="22" cy="22" r="18" id="ring-${grade}"
+                  stroke="${GCL[grade]}" stroke-dasharray="${circ}" stroke-dashoffset="${circ}"/>
+        </svg>
+      </div>
+      <div class="gc-cnt" id="cnt-${grade}">0 students</div>
+      <div class="gc-r"><label>Min</label></div>
+      <div class="gc-r mx"><label>Max</label></div>
+    `;
+
+    const minSelect = document.createElement("select");
+    const maxSelect = document.createElement("select");
+
+    for (let i = 0; i <= 100; i++) {
+      minSelect.add(new Option(i, i, i === DEFAULTS[grade][0], i === DEFAULTS[grade][0]));
+      maxSelect.add(new Option(i, i, i === DEFAULTS[grade][1], i === DEFAULTS[grade][1]));
+    }
+
+    minSelect.id = grade + "min";
+    maxSelect.id = grade + "max";
+
+    minSelect.onchange = () => {
+      card.classList.add("glow");
+      setTimeout(() => card.classList.remove("glow"), 400);
+      cascadeMaxFrom(idx);
+      updateAll();
+    };
+
+    maxSelect.onchange = () => {
+      card.classList.add("glow");
+      setTimeout(() => card.classList.remove("glow"), 400);
+      updateAll();
+    };
+
+    card.querySelector(".gc-r").appendChild(minSelect);
+    card.querySelector(".mx").appendChild(maxSelect);
+    container.appendChild(card);
+  });
+}
+
+/* Reset Ranges Button (Single Confirm Guard) */
+document.getElementById("resetR").onclick = () => {
+  if (!confirm("Reset all grade ranges to standard BITS defaults?")) return;
+  GRADES.forEach(g => {
+    document.getElementById(g + "min").value = DEFAULTS[g][0];
+    document.getElementById(g + "max").value = DEFAULTS[g][1];
+  });
+  updateAll();
+  toast("Grade ranges restored to default", "inf");
+};
+
+/* ==========================================================
+   RANGE VALIDATION LOGIC
+   - Allows Min === Max (valid single mark)
+   - Flags Min > Max
+   - Ensures continuous coverage without gaps/overlaps
+   - Enforces top max === 100 and bottom min === 0
+   ========================================================== */
+function validateRanges() {
+  for (let i = 0; i < GRADES.length; i++) {
+    const g = GRADES[i];
+    const mi = +document.getElementById(g + "min").value;
+    const ma = +document.getElementById(g + "max").value;
+
+    if (mi > ma) {
+      return `Grade ${g}: Min score (${mi}) cannot exceed Max (${ma})`;
+    }
+
+    if (i > 0) {
+      const prevMin = +document.getElementById(GRADES[i - 1] + "min").value;
+      if (ma !== prevMin - 1) {
+        return `Gap/Overlap: Grade ${g} Max should be ${prevMin - 1} (previous Min is ${prevMin})`;
+      }
+    }
+  }
+
+  if (+document.getElementById(GRADES[0] + "max").value !== 100) {
+    return `${GRADES[0]} Max boundary must be 100`;
+  }
+
+  if (+document.getElementById(GRADES[GRADES.length - 1] + "min").value !== 0) {
+    return `${GRADES[GRADES.length - 1]} Min boundary must be 0`;
+  }
+
+  return "";
+}
+
+/* Update Master Controller */
+function updateAll() {
+  const err = validateRanges();
+  const errBox = document.getElementById("rErr");
+  const errText = document.getElementById("rErrTxt");
+  const exportBtn = document.getElementById("dl");
+
+  if (err) {
+    errText.textContent = err;
+    errBox.classList.add("on");
+    exportBtn.disabled = true;
+  } else {
+    errBox.classList.remove("on");
+    exportBtn.disabled = false;
+  }
+
+  computeStats();
+  computeSummary();
+  renderChart();
+  renderTable();
+  updateRings();
+}
+
+/* ==========================================================
+   STATISTICAL COMPUTATION ENGINE
+   - Guarded against empty arrays
+   - Swap fix: sH = Highest (Max), sL = Lowest (Min)
+   - Computes Mean, Median, StdDev, Pass Rate, Top Grade
+   ========================================================== */
+function computeStats() {
+  const marks = data.filter(d => d.Course === courseSelect.value)
+                    .map(d => Number(d["Total Marks"]))
+                    .filter(v => !isNaN(v))
+                    .sort((a, b) => a - b);
+
+  const ids = ["sN", "sA", "sH", "sL", "sM", "sD", "sP", "sT"];
+  if (!marks.length) {
+    ids.forEach(id => document.getElementById(id).textContent = "–");
+    return;
+  }
+
+  const n = marks.length;
+  const sum = marks.reduce((a, b) => a + b, 0);
+  const avg = sum / n;
+  const med = n % 2 ? marks[Math.floor(n / 2)] : (marks[n / 2 - 1] + marks[n / 2]) / 2;
+  const variance = marks.reduce((acc, v) => acc + Math.pow(v - avg, 2), 0) / n;
+  const std = Math.sqrt(variance);
+  const passRate = ((marks.filter(v => v >= 40).length / n) * 100).toFixed(0);
+
+  document.getElementById("sN").textContent = n;
+  document.getElementById("sA").textContent = avg.toFixed(1);
+  document.getElementById("sH").textContent = marks[n - 1]; // Max / Highest
+  document.getElementById("sL").textContent = marks[0];     // Min / Lowest
+  document.getElementById("sM").textContent = Number.isInteger(med) ? med : med.toFixed(1);
+  document.getElementById("sD").textContent = std.toFixed(1);
+  document.getElementById("sP").textContent = passRate + "%";
+
+  const gc = getGC();
+  let topGrade = "–";
+  let topCount = 0;
+  for (const g of GRADES) {
+    if (gc[g] > topCount) {
+      topCount = gc[g];
+      topGrade = g;
+    }
+  }
+  document.getElementById("sT").textContent = topGrade;
+}
+
+/* Grade Counts Helper */
+function getGC() {
+  const counts = {};
+  GRADES.forEach(g => counts[g] = 0);
+  data.filter(d => d.Course === courseSelect.value).forEach(d => {
+    for (const g of GRADES) {
+      const minEl = document.getElementById(g + "min");
+      const maxEl = document.getElementById(g + "max");
+      if (!minEl || !maxEl) break;
+      const mi = +minEl.value;
+      const ma = +maxEl.value;
+      if (d["Total Marks"] >= mi && d["Total Marks"] <= ma) {
+        counts[g]++;
+        break;
+      }
+    }
+  });
+  return counts;
+}
+
+/* Individual Mark to Grade Evaluator */
+function aGrade(marks) {
+  for (const g of GRADES) {
+    const minEl = document.getElementById(g + "min");
+    const maxEl = document.getElementById(g + "max");
+    if (!minEl || !maxEl) return "–";
+    if (marks >= +minEl.value && marks <= +maxEl.value) return g;
+  }
+  return "–";
+}
+
+/* Update SVG Progress Rings */
+function updateRings() {
+  const gc = getGC();
+  const total = data.filter(d => d.Course === courseSelect.value).length || 1;
+  const circ = 2 * Math.PI * 18;
+
+  GRADES.forEach(g => {
+    const ring = document.getElementById("ring-" + g);
+    const cnt = document.getElementById("cnt-" + g);
+    if (!ring || !cnt) return;
+    const count = gc[g];
+    const pct = ((count / total) * 100).toFixed(0);
+    ring.style.strokeDashoffset = circ * (1 - count / total);
+    cnt.textContent = `${count} (${pct}%)`;
+  });
+}
+
+/* Compute Summary Pills */
+function computeSummary() {
+  const gc = getGC();
+  const pillsContainer = document.getElementById("pills");
+  pillsContainer.innerHTML = "";
+
+  GRADES.forEach(g => {
+    const pill = document.createElement("span");
+    pill.className = "pill";
+    if (gradeFilter === g) pill.classList.add("active-filter");
+    pill.textContent = `${g}: ${gc[g]}`;
+
+    if (prev[g] !== undefined && prev[g] !== gc[g]) {
+      pill.classList.add("pop");
+    }
+
+    // Interactive Pill Click: filter table records
+    pill.onclick = () => {
+      if (gradeFilter === g) {
+        gradeFilter = "";
+        document.getElementById("btnClearFilter").style.display = "none";
+      } else {
+        gradeFilter = g;
+        document.getElementById("btnClearFilter").style.display = "inline-flex";
+        document.getElementById("btnClearFilter").textContent = `✕ Clear Filter (${g})`;
+      }
+      computeSummary();
+      renderTable();
+    };
+
+    pillsContainer.appendChild(pill);
+    prev[g] = gc[g];
+  });
+}
+
+document.getElementById("btnClearFilter").onclick = () => {
+  gradeFilter = "";
+  document.getElementById("btnClearFilter").style.display = "none";
+  computeSummary();
+  renderTable();
+};
+
+/* ==========================================================
+   CHART.JS VISUALIZATIONS (Light Theme Crisp Styling)
+   ========================================================== */
+document.querySelectorAll(".ct button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".ct button").forEach(x => x.classList.remove("on"));
+    btn.classList.add("on");
+    cType = btn.dataset.c;
+    renderChart();
+  });
+});
+
+function renderChart() {
+  const ctx = document.getElementById("cv").getContext("2d");
+  if (chart) {
+    chart.destroy();
+    chart = null;
+  }
+
+  const marks = data.filter(d => d.Course === courseSelect.value)
+                    .map(d => Number(d["Total Marks"]))
+                    .filter(v => !isNaN(v));
+
+  if (!marks.length) return;
+
+  if (cType === "hist") rHist(ctx, marks);
+  else if (cType === "donut") rDonut(ctx);
+  else rBox(ctx, marks);
+}
+
+function rHist(ctx, marks) {
+  const bins = Array(10).fill(0);
+  marks.forEach(m => bins[Math.min(9, Math.floor(m / 10))]++);
+
+  // Light theme curated bar colors: BITS Navy through Sky Blue to Gold
+  const bgPalette = [
+    '#1E1E6ECC', '#282885CC', '#32329CCC', '#0284C7CC', '#0EA5E9CC',
+    '#38BDF8CC', '#B45309CC', '#D97706CC', '#F59E0BCC', '#10B981CC'
+  ];
+  const borderPalette = [
+    '#1E1E6E', '#282885', '#32329C', '#0284C7', '#0EA5E9',
+    '#38BDF8', '#B45309', '#D97706', '#F59E0B', '#10B981'
+  ];
+
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: bins.map((_, i) => `${i * 10}–${i * 10 + 9}`),
+      datasets: [{
+        label: 'Students',
+        data: bins,
+        backgroundColor: bgPalette,
+        borderColor: borderPalette,
+        borderWidth: 1.5,
+        borderRadius: 6
+      }]
+    },
+    options: cOpts({
+      x: {
+        ticks: { color: '#64748B', font: { size: 10, family: "'JetBrains Mono'" } },
+        grid: { color: '#F1F5F9' }
+      },
+      y: {
+        ticks: { color: '#64748B', font: { size: 10, family: "'JetBrains Mono'" }, stepSize: 1 },
+        grid: { color: '#F1F5F9' }
+      }
+    })
+  });
+}
+
+function rDonut(ctx) {
+  const gc = getGC();
+  const labels = GRADES.filter(g => gc[g] > 0);
+  const vals = labels.map(g => gc[g]);
+  const cols = labels.map(g => GCL[g]);
+
+  chart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: vals,
+        backgroundColor: cols,
+        borderColor: '#FFFFFF',
+        borderWidth: 2.5,
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 600, easing: 'easeOutQuart' },
+      cutout: '62%',
+      plugins: {
+        legend: {
+          position: 'right',
+          labels: {
+            color: '#334155',
+            font: { size: 11, family: "'Plus Jakarta Sans'", weight: '600' },
+            padding: 12,
+            usePointStyle: true,
+            pointStyleWidth: 9
+          }
+        },
+        tooltip: {
+          backgroundColor: '#0F172A',
+          titleColor: '#38BDF8',
+          bodyColor: '#FFFFFF',
+          borderColor: '#1E1E6E',
+          borderWidth: 1,
+          cornerRadius: 8,
+          callbacks: {
+            label: c => {
+              const total = c.dataset.data.reduce((a, b) => a + b, 0);
+              return ` ${c.label}: ${c.raw} students (${((c.raw / total) * 100).toFixed(1)}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function rBox(ctx, marks) {
+  marks.sort((a, b) => a - b);
+  const n = marks.length;
+  const q1 = marks[Math.floor(n * 0.25)];
+  const q3 = marks[Math.floor(n * 0.75)];
+  const med = n % 2 ? marks[Math.floor(n / 2)] : (marks[n / 2 - 1] + marks[n / 2]) / 2;
+
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Min Score', 'Q1 (25%)', 'Median (50%)', 'Q3 (75%)', 'Max Score', 'IQR Band'],
+      datasets: [{
+        data: [marks[0], q1, med, q3, marks[n - 1], q3 - q1],
+        backgroundColor: ['#FEE2E2', '#FEF3C7', '#EEF0FB', '#E0F2FE', '#ECFDF5', '#F3E8FF'],
+        borderColor: ['#DC2626', '#D97706', '#1E1E6E', '#0284C7', '#059669', '#9333EA'],
+        borderWidth: 1.5,
+        borderRadius: 6
+      }]
+    },
+    options: {
+      ...cOpts({
+        x: {
+          min: 0,
+          max: 100,
+          ticks: { color: '#64748B', font: { size: 10, family: "'JetBrains Mono'" } },
+          grid: { color: '#F1F5F9' }
+        },
+        y: {
+          ticks: { color: '#334155', font: { size: 11, weight: '600', family: "'Plus Jakarta Sans'" } },
+          grid: { display: false }
+        }
+      }),
+      indexAxis: 'y'
+    }
+  });
+}
+
+function cOpts(scales) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: { duration: 650, easing: 'easeOutQuart' },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#0F172A',
+        titleColor: '#38BDF8',
+        bodyColor: '#FFFFFF',
+        borderColor: '#1E1E6E',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 10,
+        titleFont: { family: "'Plus Jakarta Sans'", size: 11 },
+        bodyFont: { family: "'JetBrains Mono'", size: 12 }
+      }
+    },
+    scales
+  };
+}
+
+/* ==========================================================
+   STUDENT RECORDS TABLE ENGINE
+   - Search by BITS ID or Grade
+   - Sort by Marks, ID, or Grade
+   - Filter by active Grade Pill
+   ========================================================== */
+document.getElementById("sSearch").oninput = e => {
+  searchQuery = e.target.value.toLowerCase().trim();
+  renderTable();
+};
+
+document.getElementById("sSort").onclick = () => {
+  sortDir = sortDir === "desc" ? "asc" : "desc";
+  document.getElementById("sSort").textContent = `↕ Sort: Marks ${sortDir === "desc" ? "↓" : "↑"}`;
+  sortField = "marks";
+  renderTable();
+};
+
+document.getElementById("th1").onclick = () => {
+  sortField = "id";
+  sortDir = sortDir === "desc" ? "asc" : "desc";
+  renderTable();
+};
+
+document.getElementById("th2").onclick = () => {
+  sortField = "marks";
+  sortDir = sortDir === "desc" ? "asc" : "desc";
+  renderTable();
+};
+
+document.getElementById("th3").onclick = () => {
+  sortField = "grade";
+  sortDir = sortDir === "desc" ? "asc" : "desc";
+  renderTable();
+};
+
+function renderTable() {
+  const tbody = document.getElementById("tb");
+  const info = document.getElementById("tInfo");
+  tbody.innerHTML = "";
+
+  let rows = data.filter(d => d.Course === courseSelect.value)
+                 .map(d => ({
+                   id: d["BITS ID"],
+                   marks: Number(d["Total Marks"]),
+                   grade: aGrade(Number(d["Total Marks"]))
+                 }));
+
+  const totalCohort = rows.length;
+
+  // Grade filter
+  if (gradeFilter) {
+    rows = rows.filter(r => r.grade === gradeFilter);
+  }
+
+  // Search filter
+  if (searchQuery) {
+    rows = rows.filter(r =>
+      String(r.id).toLowerCase().includes(searchQuery) ||
+      r.grade.toLowerCase().includes(searchQuery)
+    );
+  }
+
+  // Sorting
+  rows.sort((a, b) => {
+    let cmp = 0;
+    if (sortField === "marks") cmp = a.marks - b.marks;
+    else if (sortField === "id") cmp = String(a.id).localeCompare(String(b.id));
+    else cmp = GRADES.indexOf(a.grade) - GRADES.indexOf(b.grade);
+    return sortDir === "desc" ? -cmp : cmp;
+  });
+
+  if (!rows.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted)">No matching student records found</td></tr>`;
+    info.textContent = `0 of ${totalCohort} students displayed`;
+    return;
+  }
+
+  rows.forEach((r, i) => {
+    const tr = document.createElement("tr");
+    const badgeClass = r.grade.startsWith("A") ? "ga"
+                     : r.grade.startsWith("B") ? "gbb"
+                     : r.grade.startsWith("C") ? "gcc"
+                     : r.grade === "D" ? "gd" : "ge";
+
+    tr.innerHTML = `
+      <td style="color:var(--text-muted)">${i + 1}</td>
+      <td>${r.id}</td>
+      <td>
+        <div class="mark-meter">
+          <span class="mark-val">${r.marks}</span>
+          <div class="mark-bar"><div class="mark-fill" style="width:${r.marks}%"></div></div>
+        </div>
+      </td>
+      <td><span class="gb ${badgeClass}">${r.grade}</span></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  info.textContent = (gradeFilter || searchQuery)
+    ? `Showing ${rows.length} of ${totalCohort} students`
+    : `Total Enrolled: ${totalCohort} students`;
+}
+
+/* ==========================================================
+   EXPORT & DOWNLOAD ENGINE
+   - Restarts timer properly (Bug fix #8)
+   - Confetti celebration
+   - Verified CSV formatted output
+   ========================================================== */
+document.getElementById("dl").onclick = () => {
+  fileCount++;
+  clearInterval(timerInterval);
+  setStep(4);
+
+  const elapsed = Date.now() - T0;
+  const mm = Math.floor(elapsed / 60000);
+  const ss = Math.floor((elapsed % 60000) / 1000);
+
+  let csv = `Institution,Birla Institute of Technology & Science Pilani Digital\n`;
+  csv += `Instructor,${instructorInput.value.trim()}\n`;
+  csv += `Course,${courseSelect.value}\n`;
+  csv += `Evaluation Date,${new Date().toLocaleDateString()}\n\n`;
+  csv += `BITS ID,Total Marks,Grade\n`;
+
+  data.filter(d => d.Course === courseSelect.value).forEach(d => {
+    csv += `${d["BITS ID"]},${d["Total Marks"]},${aGrade(d["Total Marks"])}\n`;
+  });
+
+  csv += `\nGrade Distribution Summary\n`;
+  const gc = getGC();
+  GRADES.forEach(g => {
+    csv += `${g},${gc[g]}\n`;
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `grades_${courseSelect.value.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+
+  const successBox = document.getElementById("ty");
+  const successText = document.getElementById("tyTxt");
+  successText.textContent = fileCount === 1
+    ? `Verified grade sheet exported in ${mm}m ${ss}s (First download)`
+    : `Re-exported updated grade sheet (${mm}m ${ss}s — attempt #${fileCount})`;
+
+  successBox.classList.add("on");
+  toast("Verified grades successfully exported as CSV!", "ok");
+
+  fireConfetti();
+  startTimer(); // Restart timer after download
+};
+
+// Documentation Download Toast Notifications
+["btnDownloadDocx", "sbDownloadDocx", "btnBarDocx"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("click", () => {
+      toast("Downloading bug_fix_log.docx…", "ok");
+    });
+  }
+});
+["btnDownloadMd", "sbDownloadMd"].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener("click", () => {
+      toast("Downloading bug_fix_log.md…", "ok");
+    });
+  }
+});
+</script>
+</body>
+</html>
